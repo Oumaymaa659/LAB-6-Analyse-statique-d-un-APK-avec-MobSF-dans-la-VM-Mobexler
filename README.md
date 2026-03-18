@@ -118,3 +118,39 @@ docker ps
 ![Étape 2 — Dashboard MobSF avec le résultat de l'analyse statique](screenshots/etape2_mobsf_dashboard.png)
 
 ---
+
+### 📜 Étape 3 : Analyse du Manifeste (Vulnérabilités Système)
+
+**🎯 Objectif :** Analyser le fichier `AndroidManifest.xml` pour identifier les **privilèges excessifs** et les configurations dangereuses.
+
+Le fichier `AndroidManifest.xml` est le cœur de toute application Android. Il déclare les composants de l'application (activités, services, récepteurs, fournisseurs de contenu), les permissions requises, ainsi que les configurations de sécurité. MobSF analyse automatiquement ce fichier et signale les configurations à risque.
+
+#### 🔍 Vulnérabilités identifiées :
+
+| # | Vulnérabilité | Sévérité | Description |
+|---|---------------|----------|-------------|
+| 2 | **Debug Enabled For App** `[android:debuggable=true]` | 🔴 **High** | Le débogage est activé sur l'application, ce qui facilite le travail des rétro-ingénieurs pour attacher un débogueur. Cela permet le dump de la pile d'exécution (stack trace) et l'accès aux classes d'aide au débogage. |
+| 3 | **Application Data can be Backed up** `[android:allowBackup=true]` | 🟡 **Warning** | Ce flag permet à n'importe qui de sauvegarder les données de l'application via `adb backup`. Les utilisateurs ayant activé le débogage USB peuvent copier les données de l'application hors de l'appareil. |
+| 4 | **Activity Exported** `(jakhar.aseem.diva.APICredsActivity)` | 🟡 **Warning** | Une activité est exportée et accessible par d'autres applications, ce qui peut exposer des fonctionnalités sensibles. |
+
+#### ⚠️ Analyse détaillée des risques :
+
+**1. `android:debuggable=true` (Risque élevé 🔴)**
+- **Impact :** Un attaquant peut attacher un débogueur (comme `jdb` ou Android Studio) à l'application en cours d'exécution
+- **Conséquence :** Accès complet au flux d'exécution, aux variables en mémoire, et possibilité d'injection de code en temps réel
+- **Recommandation :** Ce flag doit **impérativement** être défini sur `false` en production
+
+**2. `android:allowBackup=true` (Risque moyen 🟡)**
+- **Impact :** Un utilisateur ou un attaquant avec un accès physique peut extraire toutes les données de l'application via la commande `adb backup`
+- **Conséquence :** Fuite de données sensibles (identifiants, tokens, bases de données locales)
+- **Recommandation :** Définir `android:allowBackup="false"` ou implémenter un `BackupAgent` personnalisé
+
+> **✅ Interprétation :** Le manifeste de DIVA révèle des configurations de sécurité dangereuses qui sont malheureusement courantes dans de nombreuses applications réelles. Le flag `debuggable=true` est la vulnérabilité la plus critique car elle ouvre la porte à l'injection de code et à l'inspection en temps réel de l'application. Combiné au flag `allowBackup=true`, cela crée un vecteur d'attaque permettant à la fois l'extraction de données et la modification du comportement de l'application.
+
+#### 📸 Captures d'écran :
+
+![Étape 3 — Analyse du Manifeste : Debug Enabled (High)](screenshots/etape3_manifest_analysis_1.png)
+
+![Étape 3 — Analyse du Manifeste : AllowBackup et Activity Exported (Warning)](screenshots/etape3_manifest_analysis_2.png)
+
+---
