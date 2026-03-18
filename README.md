@@ -242,3 +242,60 @@ Le hardcoding de secrets dans le code source est l'une des erreurs de sécurité
 ![Étape 5 — Secret hardcodé détecté : pkey / notespin](screenshots/etape5_hardcoded_secrets.png)
 
 ---
+
+### 📋 Étape 6 : Conformité OWASP MASVS
+
+**🎯 Objectif :** Corréler les vulnérabilités découvertes lors de l'analyse avec le **standard international OWASP MASVS** (Mobile Application Security Verification Standard).
+
+L'OWASP MASVS est le référentiel de sécurité mobile le plus reconnu mondialement. Il définit un ensemble d'exigences de sécurité que toute application mobile devrait respecter. La section **NIAP Analysis v1.3** de MobSF permet de vérifier la conformité de l'application avec les standards de sécurité gouvernementaux.
+
+#### 🔍 Résultat NIAP Analysis v1.3 :
+
+| Champ | Valeur |
+|-------|--------|
+| **NO** | — |
+| **IDENTIFIER** | — |
+| **REQUIREMENT** | — |
+| **FEATURE** | — |
+| **DESCRIPTION** | *No data available in table* |
+
+> L'analyse NIAP ne retourne aucune donnée, ce qui indique que l'application **ne respecte aucun standard de conformité gouvernemental**. Cela est cohérent avec le score de sécurité très faible (36/100) obtenu à l'Étape 2.
+
+#### 🗺️ Correspondances avec OWASP MASVS :
+
+| Exigence MASVS | Statut | Vulnérabilité associée | Étape |
+|-----------------|--------|------------------------|-------|
+| **MASVS-STORAGE-1** | ❌ Violation | Clé cryptographique `pkey` stockée en clair dans le code source (`"notespin"`) | Étape 5 |
+| **MASVS-PLATFORM-2** | ❌ Violation | Flag `android:allowBackup="true"` activé, permettant l'extraction des données via `adb backup` | Étape 3 |
+| **MASVS-RESILIENCE-2** | ❌ Violation | Mode debug activé (`android:debuggable="true"`), facilitant la rétro-ingénierie et l'injection de code | Étape 3 |
+| **MASVS-NETWORK-1** | ❌ Violation | Communications HTTP en clair vers `http://payatu.com`, absence de Network Security Config | Étape 4 |
+
+#### 📊 Détail des exigences MASVS violées :
+
+**MASVS-STORAGE-1 — Stockage sécurisé des données sensibles**
+- ❌ **Exigence :** Les données sensibles ne doivent pas être stockées en texte clair
+- **Constat :** La clé `pkey = "notespin"` est hardcodée directement dans le code source
+- **Référence OWASP :** [MSTG-STORAGE-1](https://mas.owasp.org/MASVS/)
+
+**MASVS-PLATFORM-2 — Protection des données applicatives**
+- ❌ **Exigence :** L'application doit empêcher la sauvegarde non autorisée des données
+- **Constat :** `allowBackup=true` permet l'extraction complète des données via ADB
+- **Référence OWASP :** [MSTG-PLATFORM-2](https://mas.owasp.org/MASVS/)
+
+**MASVS-RESILIENCE-2 — Protection contre la rétro-ingénierie**
+- ❌ **Exigence :** L'application ne doit pas être compilée avec le mode débogage activé
+- **Constat :** `debuggable=true` expose l'application à l'analyse dynamique et à l'injection
+- **Référence OWASP :** [MSTG-RESILIENCE-2](https://mas.owasp.org/MASVS/)
+
+**MASVS-NETWORK-1 — Communications réseau sécurisées**
+- ❌ **Exigence :** Toutes les communications doivent être chiffrées via TLS
+- **Constat :** Endpoint HTTP non chiffré détecté (`http://payatu.com`)
+- **Référence OWASP :** [MSTG-NETWORK-1](https://mas.owasp.org/MASVS/)
+
+> **✅ Interprétation :** L'application DIVA viole au minimum **4 exigences critiques** du standard OWASP MASVS. L'absence totale de données dans l'analyse NIAP confirme que l'application n'a pas été développée selon les bonnes pratiques de sécurité. Cette corrélation entre les vulnérabilités techniques découvertes et les standards internationaux permet de catégoriser et de prioriser les corrections à apporter, en suivant un cadre de référence reconnu par l'industrie.
+
+#### 📸 Capture d'écran :
+
+![Étape 6 — NIAP Analysis v1.3 : aucune conformité détectée](screenshots/etape6_niap_compliance.png)
+
+---
