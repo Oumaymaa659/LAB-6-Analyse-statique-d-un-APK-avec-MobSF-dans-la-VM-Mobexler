@@ -299,3 +299,61 @@ L'OWASP MASVS est le référentiel de sécurité mobile le plus reconnu mondiale
 ![Étape 6 — NIAP Analysis v1.3 : aucune conformité détectée](screenshots/etape6_niap_compliance.png)
 
 ---
+
+### 📄 Étape 7 : Livrable Final & Synthèse d'Audit
+
+**🎯 Objectif :** Exporter le rapport d'analyse statique complet généré par MobSF et produire une **synthèse d'audit** consolidant l'ensemble des vulnérabilités identifiées.
+
+L'analyse statique complète a été exportée au format PDF pour servir de base à la **remédiation des failles identifiées**. Ce rapport constitue le livrable principal de cet audit de sécurité et peut être transmis à l'équipe de développement pour correction.
+
+#### 📥 Rapport d'Audit :
+
+> 👉 **[Consulter le Rapport d'Audit PDF Complet](rapport/Rapport_MOBSF.pdf)**
+
+#### 📊 Synthèse globale de l'audit :
+
+| Métrique | Valeur |
+|----------|--------|
+| **Score de sécurité** | **36/100** ⚠️ |
+| **Application analysée** | DIVA (Damn Insecure and Vulnerable App) |
+| **Package** | `jakhar.aseem.diva` |
+| **Vulnérabilités High** | 1 (Debug mode activé) |
+| **Vulnérabilités Warning** | 2+ (AllowBackup, Activity Exported) |
+| **Secrets hardcodés** | 1 (`pkey` = `notespin`) |
+| **URLs non sécurisées** | 1 (`http://payatu.com`) |
+| **Conformité NIAP** | ❌ Aucune |
+| **Exigences MASVS violées** | 4 (STORAGE-1, PLATFORM-2, RESILIENCE-2, NETWORK-1) |
+
+#### 🔄 Récapitulatif des étapes réalisées :
+
+| Étape | Titre | Résultat clé |
+|-------|-------|--------------|
+| 1️⃣ | Préparation & Intégrité | Hash SHA-256 vérifié ✅ |
+| 2️⃣ | Lancement & Analyse Statique | Score de sécurité : 36/100 ⚠️ |
+| 3️⃣ | Analyse du Manifeste | `debuggable=true` 🔴 + `allowBackup=true` 🟡 |
+| 4️⃣ | Analyse Network Security | HTTP en clair + absence de config réseau 🟡 |
+| 5️⃣ | Secrets Hardcodés | Clé crypto `pkey/notespin` exposée 🔴 |
+| 6️⃣ | Conformité OWASP MASVS | 4 exigences critiques violées ❌ |
+| 7️⃣ | Livrable Final | Rapport PDF exporté 📄 |
+
+#### 🛡️ Recommandations prioritaires :
+
+1. 🔴 **Critique :** Désactiver le mode debug (`android:debuggable="false"`)
+2. 🔴 **Critique :** Supprimer les secrets hardcodés et utiliser **Android Keystore**
+3. 🟡 **Important :** Désactiver le backup automatique (`android:allowBackup="false"`)
+4. 🟡 **Important :** Migrer toutes les communications vers **HTTPS**
+5. 🟡 **Important :** Implémenter une **Network Security Configuration**
+6. 🔵 **Recommandé :** Ajouter du **Certificate Pinning** pour les domaines critiques
+7. 🔵 **Recommandé :** Augmenter le **Target SDK** vers la version 28+ minimum
+
+---
+
+## 📝 Conclusion
+
+Ce laboratoire a permis de réaliser une **analyse statique complète** de l'application DIVA à l'aide de MobSF dans l'environnement Mobexler. L'audit a révélé **de nombreuses vulnérabilités critiques** incluant le stockage de clés cryptographiques en dur, l'activation du mode debug, des communications non chiffrées et des configurations de manifeste dangereuses.
+
+Ces résultats démontrent l'importance de l'analyse statique dans le cycle de développement sécurisé (**SDLC**) et la nécessité de respecter les standards de sécurité tels que l'**OWASP MASVS** pour garantir la protection des données utilisateur.
+
+---
+
+> **Auteur :** Oumaymaa | **Date :** 2026-03-17 | **Environnement :** Mobexler VM + MobSF Docker
