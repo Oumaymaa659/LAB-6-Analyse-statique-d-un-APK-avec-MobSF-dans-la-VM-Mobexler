@@ -202,3 +202,43 @@ La sécurité réseau est un pilier fondamental de la protection des données en
 ![Étape 4 — Network Security : aucune configuration définie](screenshots/etape4_network_security.png)
 
 ---
+
+### 🔑 Étape 5 : Recherche de Secrets Hardcodés
+
+**🎯 Objectif :** Localiser les **constantes sensibles** (clés, tokens, mots de passe) intégrées directement dans le code source de l'application.
+
+Le hardcoding de secrets dans le code source est l'une des erreurs de sécurité les plus critiques et les plus courantes en développement mobile. Toute clé, mot de passe ou token stocké en dur dans le code peut être extrait par simple décompilation de l'APK, compromettant ainsi la sécurité de l'ensemble du système.
+
+#### 🔍 Secret identifié par MobSF :
+
+| Clé | Valeur | Fichier |
+|-----|--------|---------|
+| `"pkey"` | `"notespin"` | Code source décompilé |
+
+> **🔴 Nombre total de secrets détectés : 1**
+
+#### ⚠️ Analyse du risque :
+
+**Nature du secret :**
+- Le nom `pkey` suggère qu'il s'agit d'une **clé privée** ou d'une **clé de chiffrement** utilisée par l'application
+- La valeur `notespin` est utilisée comme clé cryptographique pour les opérations de chiffrement/déchiffrement des notes de l'application
+
+**Impact de la compromission :**
+- **Déchiffrement de toutes les données :** Un attaquant connaissant cette clé peut déchiffrer toutes les données protégées par l'application
+- **Compromission totale :** Les fonctions cryptographiques de l'application sont entièrement compromises car la clé est publiquement accessible
+- **Attaque reproductible :** Puisque la clé est statique et identique pour toutes les installations, chaque utilisateur de l'application est vulnérable
+
+#### 🛡️ Recommandations :
+
+1. **Ne jamais stocker de clés en dur** dans le code source
+2. **Utiliser Android Keystore** pour générer et stocker les clés cryptographiques de manière sécurisée
+3. **Dériver les clés** à partir d'un mot de passe utilisateur avec un algorithme comme **PBKDF2** ou **Argon2**
+4. **Utiliser des variables d'environnement** ou un **serveur de gestion de secrets** pour les clés d'API
+
+> **✅ Interprétation :** La découverte du couple `pkey` / `notespin` est une vulnérabilité critique. Cette clé étant stockée en texte clair dans le code, n'importe quel attaquant réalisant une décompilation de l'APK (ce que MobSF fait automatiquement) peut l'extraire en quelques secondes. Cela rend le chiffrement des notes de l'application DIVA totalement inefficace — un exemple parfait de **sécurité par l'obscurité**, une pratique unanimement déconseillée en cybersécurité.
+
+#### 📸 Capture d'écran :
+
+![Étape 5 — Secret hardcodé détecté : pkey / notespin](screenshots/etape5_hardcoded_secrets.png)
+
+---
