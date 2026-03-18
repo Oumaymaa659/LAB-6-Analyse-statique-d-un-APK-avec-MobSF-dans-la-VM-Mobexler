@@ -354,6 +354,4 @@ Ce laboratoire a permis de réaliser une **analyse statique complète** de l'app
 
 Ces résultats démontrent l'importance de l'analyse statique dans le cycle de développement sécurisé (**SDLC**) et la nécessité de respecter les standards de sécurité tels que l'**OWASP MASVS** pour garantir la protection des données utilisateur.
 
----
 
-> **Auteur :** Oumaymaa | **Date :** 2026-03-17 | **Environnement :** Mobexler VM + MobSF Docker
