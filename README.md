@@ -154,3 +154,51 @@ Le fichier `AndroidManifest.xml` est le cœur de toute application Android. Il d
 ![Étape 3 — Analyse du Manifeste : AllowBackup et Activity Exported (Warning)](screenshots/etape3_manifest_analysis_2.png)
 
 ---
+
+### 🌐 Étape 4 : Analyse Network Security
+
+**🎯 Objectif :** Identifier les **failles de communication réseau** et l'absence de chiffrement TLS dans l'application.
+
+La sécurité réseau est un pilier fondamental de la protection des données en transit. Android permet aux développeurs de définir une **Network Security Configuration** pour contrôler les politiques de connexion (TLS, certificats épinglés, domaines autorisés). L'absence de cette configuration expose l'application à des attaques de type **Man-in-the-Middle (MitM)**.
+
+#### 🔍 Constats de l'analyse :
+
+**1. Absence de Network Security Configuration**
+
+| Champ | Valeur |
+|-------|--------|
+| **NO** | — |
+| **SCOPE** | — |
+| **SEVERITY** | — |
+| **DESCRIPTION** | *No data available in table* |
+
+> L'application **ne définit aucune politique de sécurité réseau**. Cela signifie qu'elle utilise les paramètres par défaut d'Android, qui varient selon la version du SDK cible. Avec un **Target SDK 23** (Android 6.0), le trafic en clair (HTTP) est autorisé par défaut.
+
+**2. URLs détectées dans le code source**
+
+| URL | Fichier Source |
+|-----|----------------|
+| `http://payatu.com` | `jakhar/aseem/diva/APICreds2Activity.java` |
+
+#### ⚠️ Analyse des risques réseau :
+
+- **Protocole HTTP en clair :** L'URL `http://payatu.com` utilise le protocole HTTP **non chiffré**, ce qui signifie que toutes les données échangées transitent en clair sur le réseau
+- **Absence de Certificate Pinning :** Aucun mécanisme d'épinglage de certificat n'est implémenté, rendant l'application vulnérable aux attaques MitM avec des certificats frauduleux
+- **Pas de Network Security Config :** L'absence de fichier `network_security_config.xml` empêche toute restriction des communications réseau
+
+#### 🛡️ Recommandations :
+
+1. **Migrer vers HTTPS** pour toutes les communications réseau
+2. **Implémenter une Network Security Configuration** avec `cleartextTrafficPermitted="false"`
+3. **Ajouter du Certificate Pinning** pour les domaines critiques
+4. **Définir un Target SDK ≥ 28** (Android 9+) qui bloque le trafic en clair par défaut
+
+> **✅ Interprétation :** L'absence totale de configuration de sécurité réseau, combinée à l'utilisation d'URLs en HTTP non chiffré, expose l'application à des interceptions de données en transit. Un attaquant sur le même réseau pourrait facilement capturer les requêtes envoyées vers `http://payatu.com` et voler des identifiants API ou d'autres données sensibles.
+
+#### 📸 Captures d'écran :
+
+![Étape 4 — URLs détectées : endpoint HTTP non sécurisé](screenshots/etape4_network_urls.png)
+
+![Étape 4 — Network Security : aucune configuration définie](screenshots/etape4_network_security.png)
+
+---
